@@ -27,7 +27,7 @@ class BayesClassifier():
         """
 
         #splitting up data into for equal parts
-        #quarter
+        #1/4
         p1_data = train_data[:self.file_sections[0]]
         p1_labels = train_labels[:self.file_sections[0]]
 
@@ -36,8 +36,8 @@ class BayesClassifier():
         part2_labels = train_labels[:self.file_sections[2]]
 
         #three quarters
-        p3_data = train_data[:3*self.file_sections[1]]
-        part3_labels = train_labels[:3*self.file_sections[1]]
+        p3_data = train_data[:3*self.file_sections[0]]
+        part3_labels = train_labels[:3*self.file_sections[0]]
 
         #whole data
         p4_data = train_data
@@ -63,8 +63,10 @@ class BayesClassifier():
 
 
             #We need to find word counts for each word in the vocab for both positive and negative sentences. This will allows us 
-            #to perform the conditional independence probabiltiy calculatiosn for inference. 
+            #to perform the conditional independence probabiltiy calculations for inference. 
 
+            # Data ["No", ]
+            # Vocab 
             for i in range(len(data)): 
                 for j in range(len(vocab)):
                     if data[i][j] == 1 and labels[i] == 1: 
@@ -78,32 +80,14 @@ class BayesClassifier():
             self.percent_positive_sentences = total_positive_sentences/total_num_sentences
            
         predictions = self.classify_text(train_data, vocab)
-        accuracy = self.accuracy(predictions, labels)
-        print("Phase ", phase, " accuracy: ", accuracy)
 
-        return 1
+        return predictions
     
-
-    def accuracy(predicted_labels, true_labels):
-        """
-        predicted_labels: list of 0/1s predicted by classifier
-        true_labels: list of 0/1s from text file
-        return the accuracy of the predictions
-        """
-
-        #we're assuming len(pred_labels) = len(t_labels_)
-        correct = 0 
-        for i in range(len(predicted_labels)): 
-            if predicted_labels[i] == true_labels[i]: 
-                correct+=1 
-        
-        accuracy_score = correct/len(predicted_labels)
-        return accuracy_score
-
-
 
     def classify_text(self, vectors, vocab):
 
+
+        
         """
         vectors: [vector1, vector2, ...]
         predictions: [0, 1, ...]
@@ -118,9 +102,6 @@ class BayesClassifier():
             total_pos_words += self.postive_word_counts[key]
         for key in self.negative_word_counts:
             total_neg_words += self.negative_word_counts[key]
-
-
-
         
         for sentence in vectors: 
             runSumPOS += math.log(self.percent_positive_sentences)
@@ -132,12 +113,8 @@ class BayesClassifier():
                         #*Check this with teacher
                     #uniform dirichlet priors - have to add the entire vocab size to denominator since that 
                     #accounts for all positible numerator scenarios (each word in the vocab could be present or not present in a sentence)
-                    
-                    #not sure if we're dividing correctly  here. Need to check that 
-                        #number of records dwith Y = positive. Doesn't that imply total positive sentences?
                     runSumPOS += math.log(self.postive_word_counts[vocab[i]] +1/self.total_positive_sentences + len(vocab))
                     runSumNEG += math.log(self.negative_word_counts[vocab[i]]/self.total_negative_sentences + len(vocab))
-
 
             if runSumNEG>runSumPOS: 
                 predictions.append(0)
@@ -145,6 +122,3 @@ class BayesClassifier():
                 predictions.append(1)
         
         return predictions
-
-
-    

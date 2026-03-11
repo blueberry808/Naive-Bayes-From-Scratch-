@@ -7,11 +7,16 @@ def process_text(text):
     Preprocesses the text: Remove apostrophes, punctuation marks, etc.
     Returns a list of text
     """
-    processed_text = re.sub(r'[^\w\s]','',text)
-    text_list = processed_text.split() 
+    lines = text.split('\n')
 
-    return text_list
+    processed_lines = []
 
+    for line in lines:
+        cleaned = re.sub(r'[^\w\s]', '', line)
+        tokens = cleaned.split()
+        processed_lines.append(tokens)
+
+    return processed_lines
 
 def build_vocab(preprocessed_text):
     """
@@ -21,11 +26,13 @@ def build_vocab(preprocessed_text):
     """
 
     vocab_list = []
-    for word in preprocessed_text: 
-        if word in vocab_list: 
-            continue
-        else: 
-            vocab_list.append(word)
+    for line in preprocessed_text:
+        for n in range(len(line)-1): 
+            word = line[n]
+            if word in vocab_list: 
+                continue
+            else: 
+                vocab_list.append(word)
 
     #sort alphabetically 
     vocab_list = sorted(vocab_list)
@@ -40,15 +47,30 @@ def vectorize_text(text, vocab):
     Returns the vectorized text and the labels
     """
     size_of_vector = len(vocab) + 1 #+1 to incorporate the label 
-    vectorized_text = [0] * size_of_vector
-    for i in range(len(vocab)): 
-        if vocab[i] in text: 
-            vectorized_text[i] = 1
-        else: 
-            vectorized_text[i] = 0 
-    vectorized_text[size_of_vector] = text[len(text)] #assign the label 
-    labels = text[len(text)] #check if this is right 
-    return vectorized_text, labels
+    
+    vectors = []
+    
+    # hasWord1, hasWord2, hasWord3, ... hasWordN, Label
+    
+    labels = []
+    
+    for line in text:
+        vectorized_text = [0] * size_of_vector
+        if(len(line) == 0): 
+            continue
+        label = int(line.pop())
+        
+        for i in range(len(vocab)): 
+            if vocab[i] in line: 
+                vectorized_text[i] = 1
+            else: 
+                vectorized_text[i] = 0 
+                
+        vectorized_text[size_of_vector-1] = label #assign the label 
+        labels.append(label)
+        vectors.append(vectorized_text)
+        
+    return vectors, labels
 
 
 def accuracy(predicted_labels, true_labels):
@@ -67,18 +89,32 @@ def accuracy(predicted_labels, true_labels):
     accuracy_score = correct/len(predicted_labels)
     return accuracy_score
 
+def hi(file, dataset_type):
+    preprocessed_text = process_text(file)
+    vocab = build_vocab(preprocessed_text)
+    vectors, labels = vectorize_text(preprocessed_text, vocab)
+
+    with open("preprocessed_"+dataset_type+".txt", "w") as f:
+        f.write(",".join(vocab) + ",classlabel\n")
+        for vector in vectors:
+            f.write(",".join(str(n) for n in vector)+"\n")
+    return labels, vocab
+
+
 
 def main():
     # Take in text files and outputs sentiment scores
-    with open("trainingSet.txt", "r", encoding="utf-8") as f: 
+    with open("../trainingSet.txt", "r", encoding="utf-8") as f: 
         training_data = f.read()
-
-    text_list = process_text(training_data)
-    vocab = build_vocab(text_list)
-    vectors,labels = vectorize_text(text_list, vocab)
-
-    test = BayesClassifier()
-    test()
+    with open("../testSet.txt", "r", encoding="utf-8") as f: 
+        test_data = f.read()
+    
+    train_labels, train_vocab = hi(training_data, "train")
+    test_labels, test_vocab = hi(test_data, "test")
+    
+    
+    classifier = BayesClassifier()
+    classifier.train(training_data, train_labels,train_vocab)
 
     
     return 1
