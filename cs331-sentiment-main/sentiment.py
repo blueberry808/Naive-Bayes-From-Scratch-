@@ -2,6 +2,8 @@
 # This file contains the processing functions
 import re 
 from classifier import BayesClassifier
+import matplotlib.pyplot as plt
+import numpy as np
 def process_text(text):
     """
     Preprocesses the text: Remove apostrophes, punctuation marks, etc.
@@ -115,13 +117,15 @@ def main():
     file_length = 499
     file_sections = [file_length // 4, file_length // 3, file_length // 2]
     
-    
+    percent_of_data = ["25%", "50%", "75%", "100%"]
+    train_accuracies = []
+    test_accuracies = []
     #499
     #499
     #1359
-    print(len(train_vectors))
-    print(len(train_labels))
-    print(len(train_vocab))
+    # print(len(train_vectors))
+    # print(len(train_labels))
+    # print(len(train_vocab))
     
     #splitting up data into for equal parts
     #1/4
@@ -129,33 +133,76 @@ def main():
     p1_labels = train_labels[:file_sections[0]]
     classifier.train(p1_data, p1_labels,train_vocab) #train
     pred1 = classifier.classify_text(train_vectors, train_vocab) #test on train data
-    print(f"Accuracy from training on 1/4 of the training data: {accuracy(pred1, train_labels)}")
+    accuracy1 = accuracy(pred1, train_labels)
+    train_accuracies.append(accuracy1)
+    print(f"Accuracy from training on 1/4 of the training data: {accuracy1}\n")
+
+    print("------TEST SET from training on 1/4 of the training data---------")
+    
+    pred_test = classifier.classify_text(test_vectors, train_vocab)
+    test_accuracy1 = accuracy(pred_test, test_labels)
+    test_accuracies.append(test_accuracy1)
+    print(f"Accuracy on test data: {test_accuracy1}\n")
 
     #half 
     p2_data = train_vectors[:file_sections[2]]
     part2_labels = train_labels[:file_sections[2]]
     classifier.train(p2_data, part2_labels,train_vocab)
     pred2 = classifier.classify_text(train_vectors, train_vocab) #test on train data
-    print(f"Accuracy from training on 2/4 of the training data: {accuracy(pred2, train_labels)}")
+    accuracy2 = accuracy(pred2, train_labels)
+    train_accuracies.append(accuracy2)
+    print(f"Accuracy from training on 2/4 of the training data: {accuracy2}\n")
+
+    print("------TEST SET from training on 2/4 of the training data---------")
+    
+    pred_test = classifier.classify_text(test_vectors, train_vocab)
+    test_accuracy2 = accuracy(pred_test, test_labels)
+    test_accuracies.append(test_accuracy2)
+    print(f"Accuracy on test data: {test_accuracy2}\n")
 
     #three quarters
     p3_data = train_vectors[:3*file_sections[0]]
     part3_labels = train_labels[:3*file_sections[0]]
     classifier.train(p3_data, part3_labels,train_vocab)
     pred3 = classifier.classify_text(train_vectors, train_vocab) #test on train data
-    print(f"Accuracy from training on 3/4 of the training data: {accuracy(pred3, train_labels)}")
+    accuracy3 = accuracy(pred3, train_labels)
+    train_accuracies.append(accuracy3)
+    print(f"Accuracy from training on 3/4 of the training data: {accuracy3}\n")
+
+    print("------TEST SET from training on 3/4 of the training data---------")
+    
+    pred_test = classifier.classify_text(test_vectors, train_vocab)
+    test_accuracy3 = accuracy(pred_test, test_labels)
+    test_accuracies.append(test_accuracy3)
+    print(f"Accuracy on test data: {test_accuracy3}\n")
 
     #whole data
     p4_data = train_vectors
     part4_labels = train_labels
     classifier.train(p4_data, part4_labels,train_vocab)
     pred4 = classifier.classify_text(train_vectors, train_vocab) #test on train data
-    print(f"Accuracy from training on all of the training data: {accuracy(pred4, train_labels)}")
+    accuracy4 = accuracy(pred4, train_labels)
+    train_accuracies.append(accuracy4)
+    print(f"Accuracy from training on all of the training data: {accuracy(pred4, train_labels)}\n")
     
-    print("------TEST SET---------")
+    print("------TEST SET from training on all of the training data---------")
     
     pred_test = classifier.classify_text(test_vectors, train_vocab)
-    print(f"Accuracy on test data: {accuracy(pred_test, test_labels)}")
+    test_accuracy4 = accuracy(pred_test, test_labels)
+    test_accuracies.append(test_accuracy4)
+    print(f"Accuracy on test data: {accuracy(pred_test, test_labels)}\n")
+
+    plt.plot(percent_of_data, train_accuracies, marker='o')
+    plt.title('Performance of the classifier on the training set')
+    plt.xlabel('Training Set Size')
+    plt.ylabel('Train Accuracy')
+    plt.show()
+
+    plt.plot(percent_of_data, test_accuracies, marker='o')
+    plt.title('Performance of the classifier on the test set')
+    plt.xlabel('Training Set Size')
+    plt.ylabel('Test Accuracy')
+    plt.show()
 
     return 1
 
