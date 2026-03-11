@@ -85,9 +85,10 @@ def accuracy(predicted_labels, true_labels):
     accuracy_score = correct/len(predicted_labels)
     return accuracy_score
 
-def hi(file, dataset_type):
+def build_dataset(file, source_vocab_file, dataset_type):
     preprocessed_text = process_text(file)
-    vocab = build_vocab(preprocessed_text)
+    vocab = build_vocab(process_text(source_vocab_file))
+    
     vectors, labels = vectorize_text(preprocessed_text, vocab)
 
     with open("preprocessed_"+dataset_type+".txt", "w") as f:
@@ -105,8 +106,8 @@ def main():
     with open("../testSet.txt", "r", encoding="utf-8") as f: 
         test_data = f.read()
     
-    train_vectors, train_labels, train_vocab = hi(training_data, "train")
-    test_vectors, test_labels, test_vocab = hi(test_data, "test")
+    train_vectors, train_labels, train_vocab = build_dataset(training_data, training_data, "train")
+    test_vectors, test_labels, test_vocab = build_dataset(test_data, training_data, "test")
     
     
     classifier = BayesClassifier()
@@ -150,6 +151,11 @@ def main():
     classifier.train(p4_data, part4_labels,train_vocab)
     pred4 = classifier.classify_text(train_vectors, train_vocab) #test on train data
     print(f"Accuracy from training on all of the training data: {accuracy(pred4, train_labels)}")
+    
+    print("------TEST SET---------")
+    
+    pred_test = classifier.classify_text(test_vectors, train_vocab)
+    print(f"Accuracy on test data: {accuracy(pred_test, test_labels)}")
 
     return 1
 
