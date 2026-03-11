@@ -12,7 +12,7 @@ def process_text(text):
     processed_lines = []
 
     for line in lines:
-        cleaned = re.sub(r'[^\w\s]', '', line)
+        cleaned = re.sub(r'[^\w\s]', '', line).lower()
         tokens = cleaned.split()
         processed_lines.append(tokens)
 
@@ -25,18 +25,14 @@ def build_vocab(preprocessed_text):
     Returns unique text tokens
     """
 
-    vocab_list = []
-    for line in preprocessed_text:
-        for n in range(len(line)-1): 
-            word = line[n]
-            if word in vocab_list: 
-                continue
-            else: 
-                vocab_list.append(word)
+    vocab_set = set()
 
-    #sort alphabetically 
-    vocab_list = sorted(vocab_list)
-    return vocab_list
+    for line in preprocessed_text:
+        for word in line[:-1]:   # exclude label only
+            vocab_set.add(word)
+
+    return sorted(list(vocab_set))
+
 
 
 def vectorize_text(text, vocab):
@@ -98,7 +94,7 @@ def hi(file, dataset_type):
         f.write(",".join(vocab) + ",classlabel\n")
         for vector in vectors:
             f.write(",".join(str(n) for n in vector)+"\n")
-    return labels, vocab
+    return vectors, labels, vocab
 
 
 
@@ -109,16 +105,53 @@ def main():
     with open("../testSet.txt", "r", encoding="utf-8") as f: 
         test_data = f.read()
     
-    train_labels, train_vocab = hi(training_data, "train")
-    test_labels, test_vocab = hi(test_data, "test")
+    train_vectors, train_labels, train_vocab = hi(training_data, "train")
+    test_vectors, test_labels, test_vocab = hi(test_data, "test")
     
     
     classifier = BayesClassifier()
-    classifier.train(training_data, train_labels,train_vocab)
-
     
-    return 1
+    file_length = 499
+    file_sections = [file_length // 4, file_length // 3, file_length // 2]
+    
+    
+    #499
+    #499
+    #1359
+    print(len(train_vectors))
+    print(len(train_labels))
+    print(len(train_vocab))
+    
+    #splitting up data into for equal parts
+    #1/4
+    p1_data = train_vectors[:file_sections[0]]
+    p1_labels = train_labels[:file_sections[0]]
+    classifier.train(p1_data, p1_labels,train_vocab) #train
+    pred1 = classifier.classify_text(train_vectors, train_vocab) #test on train data
+    print(f"Accuracy from training on 1/4 of the training data: {accuracy(pred1, train_labels)}")
 
+    #half 
+    p2_data = train_vectors[:file_sections[2]]
+    part2_labels = train_labels[:file_sections[2]]
+    classifier.train(p2_data, part2_labels,train_vocab)
+    pred2 = classifier.classify_text(train_vectors, train_vocab) #test on train data
+    print(f"Accuracy from training on 2/4 of the training data: {accuracy(pred2, train_labels)}")
+
+    #three quarters
+    p3_data = train_vectors[:3*file_sections[0]]
+    part3_labels = train_labels[:3*file_sections[0]]
+    classifier.train(p3_data, part3_labels,train_vocab)
+    pred3 = classifier.classify_text(train_vectors, train_vocab) #test on train data
+    print(f"Accuracy from training on 3/4 of the training data: {accuracy(pred3, train_labels)}")
+
+    #whole data
+    p4_data = train_vectors
+    part4_labels = train_labels
+    classifier.train(p4_data, part4_labels,train_vocab)
+    pred4 = classifier.classify_text(train_vectors, train_vocab) #test on train data
+    print(f"Accuracy from training on all of the training data: {accuracy(pred4, train_labels)}")
+
+    return 1
 
 if __name__ == "__main__":
     main()
