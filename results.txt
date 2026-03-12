@@ -1,0 +1,15 @@
+------RESULTS FROM training on 1/4 of the training data---------
+Accuracy on training set: 0.7194388777555111
+Accuracy on test set: 0.6056338028169014
+
+------RESULTS FROM training on 2/4 of the training data---------
+Accuracy on training set: 0.8256513026052105
+Accuracy on test set: 0.7082494969818913
+
+------RESULTS FROM training on 3/4 of the training data---------
+Accuracy on training set: 0.8977955911823647
+Accuracy on test set: 0.7344064386317908
+
+------RESULTS FROM training on all of the training data---------
+Accuracy on training set: 0.9679358717434869
+Accuracy on test set: 0.7847082494969819
