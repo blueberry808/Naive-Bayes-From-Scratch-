@@ -135,6 +135,7 @@ def main():
     pred1 = classifier.classify_text(train_vectors, train_vocab) #test on train data
     accuracy1 = accuracy(pred1, train_labels)
     train_accuracies.append(accuracy1)
+    print("------TRAINING SET from training on 1/4 of the training data---------")
     print(f"Accuracy from training on 1/4 of the training data: {accuracy1}\n")
 
     print("------TEST SET from training on 1/4 of the training data---------")
@@ -151,6 +152,7 @@ def main():
     pred2 = classifier.classify_text(train_vectors, train_vocab) #test on train data
     accuracy2 = accuracy(pred2, train_labels)
     train_accuracies.append(accuracy2)
+    print("------TRAINING SET from training on 2/4 of the training data---------")
     print(f"Accuracy from training on 2/4 of the training data: {accuracy2}\n")
 
     print("------TEST SET from training on 2/4 of the training data---------")
@@ -167,6 +169,7 @@ def main():
     pred3 = classifier.classify_text(train_vectors, train_vocab) #test on train data
     accuracy3 = accuracy(pred3, train_labels)
     train_accuracies.append(accuracy3)
+    print("------TRAINING SET from training on 3/4 of the training data---------")
     print(f"Accuracy from training on 3/4 of the training data: {accuracy3}\n")
 
     print("------TEST SET from training on 3/4 of the training data---------")
@@ -183,6 +186,7 @@ def main():
     pred4 = classifier.classify_text(train_vectors, train_vocab) #test on train data
     accuracy4 = accuracy(pred4, train_labels)
     train_accuracies.append(accuracy4)
+    print("------TRAINING SET from training on all of the training data---------")
     print(f"Accuracy from training on all of the training data: {accuracy(pred4, train_labels)}\n")
     
     print("------TEST SET from training on all of the training data---------")
